@@ -1,0 +1,72 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python virtual environment
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Database / local files
+*.db
+*.sqlite
+*.sqlite3
+
+# Large ML model files
+*.pt
+*.pth
+*.onnx
+*.h5
+*.keras
+*.pkl
+*.joblib
+
+# ML training outputs
+runs/
+wandb/
+mlruns/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Node/frontend dependencies if present
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Uploads / generated files
+uploads/
+outputs/
+results/
+
+# Secrets / credentials
+*.pem
+*.key
+credentials.json
+secrets.json

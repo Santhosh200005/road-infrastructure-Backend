@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: road_infra_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: road_user
+      POSTGRES_PASSWORD: road_pass
+      POSTGRES_DB: road_infra_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U road_user -d road_infra_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: road_infra_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://road_user:road_pass@postgres:5433/road_infra_db
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production-please}
+      FRONTEND_ORIGINS: http://localhost:3000,http://localhost:5173
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MONTHLY_BUDGET_LIMIT: ${MONTHLY_BUDGET_LIMIT:-400000}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./results:/app/results
+      # Mount the trained model weights (NOT included in the repo — download
+      # from the link in ml/detection/README.md and place locally first):
+      - ./ml/detection/runs:/app/ml/detection/runs
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: road_infra_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres_data:
